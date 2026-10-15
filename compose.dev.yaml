@@ -14,7 +14,7 @@ services:
 
     environment:
       TOKEN: ${TOKEN}
-      DATABASE_URL: postgres://botuser:${POSTGRES_PASSWORD}@db:5432/discordbot_test
+      DATABASE_URL: postgres://botuser:${POSTGRES_PASSWORD}@db:5432/nano_db
 
 volumes:
   cargo_registry:

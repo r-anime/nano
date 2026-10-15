@@ -7,7 +7,9 @@ mod utils;
 mod commands;
 mod types;
 
-struct Data {}
+struct Data {
+    db: sqlx::PgPool,
+}
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
@@ -18,6 +20,16 @@ async fn main() -> Result<(), Error> {
 
     let token = env::var("TOKEN")
         .expect("Missing TOKEN env var, see README for more information.");
+
+    let database_url = std::env::var("DATABASE_URL")
+        .expect("Missing DATABASE_URL environment variable");
+
+    let pool = sqlx::PgPool::connect(&database_url).await?;
+
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await?;
+
 
     let intents = serenity::GatewayIntents::non_privileged();
 
@@ -36,7 +48,7 @@ async fn main() -> Result<(), Error> {
                 )
                 .await?;
 
-                Ok(Data {})
+                Ok(Data { db: pool })
             })
         })
     .build();

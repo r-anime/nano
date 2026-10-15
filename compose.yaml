@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       TOKEN: ${TOKEN}
-      DATABASE_URL: postgres://botuser:${POSTGRES_PASSWORD}@db:5432/discordbot
+      DATABASE_URL: postgres://botuser:${POSTGRES_PASSWORD}@db:5432/nano_db
     depends_on:
       db:
         condition: service_healthy
@@ -16,11 +16,11 @@ services:
     environment:
       POSTGRES_USER: botuser
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: discordbot
+      POSTGRES_DB: nano_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U botuser -d discordbot"]
+      test: ["CMD-SHELL", "pg_isready -U botuser -d nano_db"]
       interval: 5s
       timeout: 5s
       retries: 5
