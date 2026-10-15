@@ -1,0 +1,9 @@
+FROM rust:1-bookworm
+
+WORKDIR /app
+
+COPY . .
+
+RUN cargo fetch
+
+CMD ["cargo", "run"]
