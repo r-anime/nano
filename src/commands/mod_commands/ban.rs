@@ -2,7 +2,7 @@ use chrono::{Duration as ChronoDuration, Utc};
 use poise::serenity_prelude as serenity;
 use serenity::builder::CreateMessage;
 
-use crate::{Context, Error, db::database, types::QueuedJobType};
+use crate::{Context, Error, db::database, types::{ModerationAction, QueuedJobType}};
 
 #[poise::command(
     slash_command,
@@ -20,6 +20,9 @@ pub async fn ban(
 ) -> Result<(), Error> {
     let guild_id = ctx.data().guild_id;
     let user_id = member.user.id;
+    let moderator_id = i64::try_from(ctx.author().id.get())?;
+    let user_id_int = i64::try_from(member.user.id.get())?;
+    let mod_duration = length.clone().unwrap_or_else(|| "inf".to_string());
 
     // Truncate the reason to Discord's limit.
     reason.truncate(512);
@@ -124,6 +127,27 @@ pub async fn ban(
             return Ok(());
         }
     }
+
+    let _case_id = match database::insert_modcase(
+        &ctx.data().db,
+        user_id_int,
+        moderator_id,
+        ModerationAction::Ban,
+        reason.clone(),
+        Some(mod_duration),
+        Utc::now(),
+    )
+    .await
+    {
+        Ok(id) => Some(id),
+        Err(err) => {
+            eprintln!(
+                "Warned user {}, but failed to record moderation case: {err}",
+                user_id
+            );
+            None
+        }
+    };
 
     // Confirm the ban.
     let confirmation = if let Some(expires_at) = expires_at {

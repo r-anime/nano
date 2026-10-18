@@ -1,7 +1,8 @@
+use chrono::Utc;
 use poise::serenity_prelude as serenity;
 use serenity::builder::CreateMessage;
 
-use crate::{Context, Error};
+use crate::{Context, Error, db::database, types::ModerationAction};
 
 #[poise::command(
     slash_command,
@@ -15,6 +16,9 @@ pub async fn kick(
     #[description = "Reason for the kick (maximum 512 characters)"]
     mut reason: String,
 ) -> Result<(), Error> {
+    let user_id = i64::try_from(member.user.id.get())?;
+    let moderator_id = i64::try_from(ctx.author().id.get())?;
+    
     // Truncate the reason to Discord's limit.
     reason.truncate(512);
 
@@ -42,6 +46,28 @@ pub async fn kick(
         Err(err) => {
             eprintln!("Failed to DM kicked user: {err:?}");
             " I couldn't send them a DM; they may have DMs disabled."
+        }
+    };
+
+    // Record the kick in moderation history.
+    let _case_id = match database::insert_modcase(
+        &ctx.data().db,
+        user_id,
+        moderator_id,
+        ModerationAction::Kick,
+        reason.clone(),
+        None,
+        Utc::now(),
+    )
+    .await
+    {
+        Ok(id) => Some(id),
+        Err(err) => {
+            eprintln!(
+                "Kicked user {}, but failed to record moderation case: {err}",
+                user_id
+            );
+            None
         }
     };
 
