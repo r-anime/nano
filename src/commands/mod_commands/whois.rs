@@ -50,20 +50,20 @@ pub async fn whois(
     
     let message = format!(
         "Moderation history for <@{}> (`{}`)\n\n\
-         Warnings: {}\n\n{}\n\
-         Kicks: {}\n\n{}\n\
-         Bans: {}\n\n{}\n\
-         Notes: {}\n\n{}\n",
+         __Warnings: **{}**__\n{}\n\
+         __Kicks: **{}**__\n\n{}\n\
+         __Bans: **{}**__\n\n{}\n\
+         __Notes: **{}**__\n\n{}\n",
         user_id,
         user_id,
         warnings.len(),
-        format_cases(&warnings),
+        format_cases(&warnings, false),
         kicks.len(),
-        format_cases(&kicks),
+        format_cases(&kicks, false),
         bans.len(),
-        format_cases(&bans),
+        format_cases(&bans, true),
         notes.len(),
-        format_cases(&notes),
+        format_cases(&notes, false),
     );
 
     ctx.say(message).await?;
@@ -71,7 +71,7 @@ pub async fn whois(
     Ok(())
 }
 
-fn format_cases(cases: &[&ModerationCase]) -> String {
+fn format_cases(cases: &[&ModerationCase], show_duration: bool) -> String {
     if cases.is_empty() {
         return "- None".to_string();
     }
@@ -79,39 +79,46 @@ fn format_cases(cases: &[&ModerationCase]) -> String {
     let mut output = String::new();
 
     for case in cases.iter().take(MAX_CASES_PER_CATEGORY) {
-        let date = case.created_at.format("%d/%m/%Y");
+        let timestamp = case.created_at.timestamp();
+        let date = format!("<t:{}:d>", timestamp);
+
         let mut reason: String = case
             .reason
             .chars()
             .take(MAX_REASON_LENGTH)
             .collect();
+
         if case.reason.chars().count() > MAX_REASON_LENGTH {
             reason.push('…');
         }
-        // Prevent newlines in a reason from breaking the formatting.
+
+        // Prevent newlines in reasons from breaking the layout.
         let reason = reason.replace('\n', " ").replace('\r', "");
 
         let moderator = match u64::try_from(case.moderator_id) {
             Ok(id) => format!("<@{}>", id),
             Err(_) => "unknown-user".to_string(),
         };
+        if show_duration {
+            let duration = case.duration.as_deref().unwrap_or("inf");
 
-        output.push_str(&format!(
-            "- {}: {} - {}\n",
-            date,
-            reason,
-            moderator
-        ));
+            output.push_str(&format!(
+                "- {}: {} `{}` - {}\n",
+                date, duration, reason, moderator
+            ));
+        } else {
+            output.push_str(&format!(
+                "- {}: {} - {}\n",
+                date, reason, moderator
+            ));
+        }
     }
-
     let remaining = cases.len().saturating_sub(MAX_CASES_PER_CATEGORY);
-
     if remaining > 0 {
         output.push_str(&format!(
             "- *And {} more...*\n",
             remaining
         ));
     }
-
     output.trim_end().to_string()
 }
