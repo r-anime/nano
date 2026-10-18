@@ -53,6 +53,8 @@ async fn main() -> Result<(), Error> {
                 commands::misc::remind::remind(),
                 commands::mod_commands::note::note(),
                 commands::mod_commands::whois::whois(),
+                commands::misc::roll::roll(),
+                commands::misc::pick::pick(),
             ],
             ..Default::default()
         })

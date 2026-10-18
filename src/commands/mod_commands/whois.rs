@@ -103,7 +103,7 @@ fn format_cases(cases: &[&ModerationCase], show_duration: bool) -> String {
             let duration = case.duration.as_deref().unwrap_or("inf");
 
             output.push_str(&format!(
-                "- {}: {} `{}` - {}\n",
+                "- {}: `{}` {} - {}\n",
                 date, duration, reason, moderator
             ));
         } else {
