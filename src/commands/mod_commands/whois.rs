@@ -51,9 +51,9 @@ pub async fn whois(
     let message = format!(
         "Moderation history for <@{}> (`{}`)\n\n\
          __Warnings: **{}**__\n{}\n\
-         __Kicks: **{}**__\n\n{}\n\
-         __Bans: **{}**__\n\n{}\n\
-         __Notes: **{}**__\n\n{}\n",
+         __Kicks: **{}**__\n{}\n\
+         __Bans: **{}**__\n{}\n\
+         __Notes: **{}**__\n{}\n",
         user_id,
         user_id,
         warnings.len(),
