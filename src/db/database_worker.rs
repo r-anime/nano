@@ -133,7 +133,7 @@ async fn process_reminder(
     let created_timestamp = job.created_at.timestamp();
 
     let content = format!(
-        "<@{}> your reminder from <t:{}:F>\n\
+        "<@{}> your reminder from <t:{}:f>\n\
          {}",
         user_id.get(),
         created_timestamp,

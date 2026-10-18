@@ -64,7 +64,7 @@ pub async fn remind(
 
     // Confirm the scheduled reminder.
     ctx.say(format!(
-        "Reminder scheduled for <t:{}:F>",
+        "Reminder scheduled for <t:{}:f>",
         execute_at.timestamp(),
     ))
     .await?;
