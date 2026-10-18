@@ -29,3 +29,22 @@ pub struct QueueRecord {
     pub payload: Value,
     pub created_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Type)]
+#[sqlx(type_name = "moderation_action", rename_all = "lowercase")]
+pub enum ModerationAction {
+    Ban,
+    Kick,
+    Warn,
+}
+
+#[derive(Debug, FromRow)]
+pub struct ModerationCase {
+    pub id: i64,
+    pub user_id: i64,
+    pub moderator_id: i64,
+    pub action: ModerationAction,
+    pub reason: String,
+    pub duration: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
