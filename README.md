@@ -1,0 +1,1 @@
+When building the bot for the first time create a .env file and copy the contents from .envtemplate over and fill them in.
