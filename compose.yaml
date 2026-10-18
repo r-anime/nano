@@ -1,6 +1,7 @@
 
 services:
   bot:
+    image: nano-bot:latest
     build: .
     restart: unless-stopped
     environment:
