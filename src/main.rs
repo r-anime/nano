@@ -6,7 +6,7 @@ use poise::serenity_prelude as serenity;
 mod utils;
 mod commands;
 mod types;
-mod database;
+mod db;
 
 struct Data {
     db: sqlx::PgPool,
@@ -50,6 +50,7 @@ async fn main() -> Result<(), Error> {
                 commands::mod_commands::ban::ban(),
                 commands::mod_commands::unban::unban(),
                 commands::mod_commands::warn::warn(),
+                commands::misc::remind::remind(),
             ],
             ..Default::default()
         })
@@ -60,9 +61,19 @@ async fn main() -> Result<(), Error> {
                     &framework.options().commands,
                 )
                 .await?;
+                    
+                let data = Data {
+                    db: pool,
+                    guild_id,
+                };
 
-                Ok(Data {   db: pool,
-                            guild_id })
+                tokio::spawn(crate::db::database_worker::run_worker(
+                    data.db.clone(),
+                    ctx.http.clone(),
+                    data.guild_id,
+                ));
+
+                Ok(data)
             })
         })
     .build();

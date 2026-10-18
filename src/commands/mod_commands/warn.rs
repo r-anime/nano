@@ -8,7 +8,7 @@ use crate::{Context, Error};
 pub async fn warn(
     ctx: Context<'_>,
     member: Member,
-    #[description = "Warn reason, anything above 1950 characters will be truncated in line wtih Discord's max ban reason character limit."]
+    #[description = "Warn reason, anything above 1950 characters will be truncated in line wtih Discord's message limit."]
     mut reason: String
 ) -> Result<(), Error> {
     // Truncate the string so it doesn't go over the char limit

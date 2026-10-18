@@ -1,6 +1,6 @@
 use poise::serenity_prelude as serenity;
 
-use crate::database::cancel_pending_unbans;
+use crate::db::database::cancel_pending_unbans;
 use crate::{Context, Error};
 
 #[poise::command(
