@@ -6,9 +6,11 @@ use poise::serenity_prelude as serenity;
 mod utils;
 mod commands;
 mod types;
+mod database;
 
 struct Data {
     db: sqlx::PgPool,
+    guild_id: serenity::GuildId,
 }
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
@@ -16,6 +18,7 @@ type Context<'a> = poise::Context<'a, Data, Error>;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
+    // Loading all the various ENV variables
     dotenv().ok();
 
     let token = env::var("TOKEN")
@@ -25,6 +28,13 @@ async fn main() -> Result<(), Error> {
         .expect("Missing DATABASE_URL environment variable");
 
     let pool = sqlx::PgPool::connect(&database_url).await?;
+
+    let guild_id = env::var("GUILD_ID")
+        .expect("Missing GUILD_ID environment variable")
+        .parse::<u64>()
+        .expect("GUILD_ID must be a valid Discord guild ID");
+
+    let guild_id = serenity::GuildId::new(guild_id);
 
     sqlx::migrate!("./migrations")
         .run(&pool)
@@ -37,10 +47,13 @@ async fn main() -> Result<(), Error> {
         .options(poise::FrameworkOptions {
             commands: vec![
                 commands::mod_commands::kick::kick(),
+                commands::mod_commands::ban::ban(),
+                commands::mod_commands::unban::unban(),
+                commands::mod_commands::warn::warn(),
             ],
             ..Default::default()
         })
-        .setup(|ctx, _ready, framework| {
+        .setup(move |ctx, _ready, framework| {
             Box::pin(async move {
                 poise::builtins::register_globally(
                     ctx,
@@ -48,7 +61,8 @@ async fn main() -> Result<(), Error> {
                 )
                 .await?;
 
-                Ok(Data { db: pool })
+                Ok(Data {   db: pool,
+                            guild_id })
             })
         })
     .build();

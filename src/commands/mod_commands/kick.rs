@@ -1,4 +1,3 @@
-use poise::CreateReply;
 use serenity::{builder::CreateMessage, model::guild::Member};
 
 use crate::{Context, Error};
@@ -9,8 +8,11 @@ use crate::{Context, Error};
 pub async fn kick(
     ctx: Context<'_>,
     member: Member,
-    reason: String
+    #[description = "Kick reason, anything above 512 characters will be truncated in line wtih Discord's max ban reason character limit."]
+    mut reason: String
 ) -> Result<(), Error> {
+    // Truncate the string so it doesn't go over the char limit
+    reason.truncate(512);
     let dm = CreateMessage::new().content(format!("You have been kicked from the server.\nReason: {}",reason));
     if let Err(err) = member.user.dm(&ctx.http(), dm).await {
         eprintln!("Failed to DM user: {err:?}");

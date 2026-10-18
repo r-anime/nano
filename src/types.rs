@@ -1,26 +1,31 @@
 use chrono::{DateTime, Utc};
 use serde_json::Value;
+use sqlx::{Type, prelude::FromRow};
 
-// Enum to indicate the various types of queued operations the bot an perform
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Type)]
+#[sqlx(type_name = "queued_job_type", rename_all = "lowercase")]
 pub enum QueuedJobType {
     Unban,
-    Remind
+    Remind,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Type)]
+#[sqlx(type_name = "queued_job_status", rename_all = "lowercase")]
 pub enum QueuedJobStatus {
-    pending,
-    completed,
-    failed,
-    cancelled
+    Pending,
+    Completed,
+    Failed,
+    Cancelled,
 }
 
+#[derive(Debug, FromRow)]
 pub struct QueueRecord {
-    id: u64,
-    job_type: QueuedJobType,
-    execute_at: DateTime<Utc>,
-    status: QueuedJobStatus,
-    channel_id: Option<u64>,
-    user_id: Option<u64>,
-    payload: Value,
-    creatd_at: DateTime<Utc>
+    pub id: i64,
+    pub job_type: QueuedJobType,
+    pub execute_at: DateTime<Utc>,
+    pub status: QueuedJobStatus,
+    pub channel_id: Option<i64>,
+    pub user_id: Option<i64>,
+    pub payload: Value,
+    pub created_at: DateTime<Utc>,
 }
