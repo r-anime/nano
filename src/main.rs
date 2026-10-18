@@ -51,6 +51,8 @@ async fn main() -> Result<(), Error> {
                 commands::mod_commands::unban::unban(),
                 commands::mod_commands::warn::warn(),
                 commands::misc::remind::remind(),
+                commands::mod_commands::note::note(),
+                commands::mod_commands::whois::whois(),
             ],
             ..Default::default()
         })

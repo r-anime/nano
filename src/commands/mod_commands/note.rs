@@ -55,7 +55,6 @@ pub async fn note(
                 "Saved note for <@{}>",
                 member.user.id
             ))
-            .ephemeral(true),
     )
     .await?;
 

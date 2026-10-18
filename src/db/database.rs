@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde_json::Value;
 use sqlx::PgPool;
 
-use crate::types::{self, QueueRecord, QueuedJobStatus, QueuedJobType};
+use crate::types::{self, ModerationCase, QueueRecord, QueuedJobStatus, QueuedJobType};
 
 pub async fn enqueue_job(
     db: &PgPool,
@@ -94,4 +94,30 @@ pub async fn insert_modcase(
     .await?;
 
     Ok(id)
+}
+
+pub async fn get_user_modcases(
+    db: &PgPool,
+    user_id: i64,
+) -> Result<Vec<ModerationCase>, sqlx::Error> {
+    let cases = sqlx::query_as::<_, ModerationCase>(
+        r#"
+        SELECT
+            id,
+            user_id,
+            moderator_id,
+            action,
+            reason,
+            duration,
+            created_at
+        FROM moderation_cases
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        "#,
+    )
+    .bind(user_id)
+    .fetch_all(db)
+    .await?;
+
+    Ok(cases)
 }
