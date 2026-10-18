@@ -2,7 +2,8 @@
 CREATE TYPE moderation_action AS ENUM (
     'ban',
     'kick',
-    'warn'
+    'warn',
+    'note'
 );
 
 CREATE TABLE moderation_cases (

@@ -36,6 +36,7 @@ pub enum ModerationAction {
     Ban,
     Kick,
     Warn,
+    Note,
 }
 
 #[derive(Debug, FromRow)]
