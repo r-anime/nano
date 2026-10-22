@@ -8,7 +8,7 @@ use crate::{
 
 const MAX_CASES_PER_CATEGORY: usize = 3;
 const MAX_REASON_LENGTH: usize = 150;
-const MAX_MESSAGE_LENGTH: usize = 1900;
+// const MAX_MESSAGE_LENGTH: usize = 1900;
 
 #[poise::command(
     slash_command,
