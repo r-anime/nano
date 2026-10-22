@@ -1,30 +1,37 @@
 
 services:
-  bot:
+  nano:
     image: nano-bot:latest
     build: .
     restart: unless-stopped
+    env_file: .env
     environment:
       TOKEN: ${TOKEN}
-      DATABASE_URL: postgres://botuser:${POSTGRES_PASSWORD}@db:5432/nano_db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
     depends_on:
-      db:
+      nano_db:
         condition: service_healthy
 
-  db:
-    image: postgres:17
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: botuser
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: nano_db
+  nano_db:
+    container_name: nano-db
+    image: postgres:18.6-alpine
+    restart: always
+    pull_policy: always
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./nano/prod/db-data18:/var/lib/postgresql/18/docker
+      - ./nano/prod/backup:/mnt/backup
+    environment:
+      POSTGRES_USER: nano
+      POSTGRES_PASSWORD: "choosesomething"
+      POSTGRES_DB: nano
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U botuser -d nano_db"]
+      test: ["CMD-SHELL", "pg_isready -U nano -d nano"]
       interval: 5s
       timeout: 5s
-      retries: 5
-
-volumes:
-  postgres_data:
+      retries: 10
+      start_period: 300s
+      start_interval: 1s
