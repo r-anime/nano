@@ -3,10 +3,10 @@ use std::env;
 use dotenvy::dotenv;
 use poise::serenity_prelude as serenity;
 
-mod utils;
 mod commands;
-mod types;
 mod db;
+mod types;
+mod utils;
 
 struct Data {
     db: sqlx::PgPool,
@@ -21,8 +21,7 @@ async fn main() -> Result<(), Error> {
     // Loading all the various ENV variables
     dotenv().ok();
 
-    let token = env::var("TOKEN")
-        .expect("Missing TOKEN env var, see README for more information.");
+    let token = env::var("TOKEN").expect("Missing TOKEN env var, see README for more information.");
 
     let host = std::env::var("DB_HOST").expect("Missing DB_HOST environment variable");
     let port = std::env::var("DB_PORT").expect("Missing DB_PORT environment variable");
@@ -43,10 +42,7 @@ async fn main() -> Result<(), Error> {
 
     let guild_id = serenity::GuildId::new(guild_id);
 
-    sqlx::migrate!("./migrations")
-        .run(&pool)
-        .await?;
-
+    sqlx::migrate!("./migrations").run(&pool).await?;
 
     let intents = serenity::GatewayIntents::non_privileged();
 
@@ -67,16 +63,9 @@ async fn main() -> Result<(), Error> {
         })
         .setup(move |ctx, _ready, framework| {
             Box::pin(async move {
-                poise::builtins::register_globally(
-                    ctx,
-                    &framework.options().commands,
-                )
-                .await?;
-                    
-                let data = Data {
-                    db: pool,
-                    guild_id,
-                };
+                poise::builtins::register_globally(ctx, &framework.options().commands).await?;
+
+                let data = Data { db: pool, guild_id };
 
                 tokio::spawn(crate::db::database_worker::run_worker(
                     data.db.clone(),
@@ -87,7 +76,7 @@ async fn main() -> Result<(), Error> {
                 Ok(data)
             })
         })
-    .build();
+        .build();
 
     let mut client = serenity::ClientBuilder::new(token, intents)
         .framework(framework)

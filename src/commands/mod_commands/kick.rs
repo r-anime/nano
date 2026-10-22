@@ -11,25 +11,20 @@ use crate::{Context, Error, db::database, types::ModerationAction};
 )]
 pub async fn kick(
     ctx: Context<'_>,
-    #[description = "The member to kick"]
-    member: serenity::Member,
-    #[description = "Reason for the kick (maximum 512 characters)"]
-    mut reason: String,
+    #[description = "The member to kick"] member: serenity::Member,
+    #[description = "Reason for the kick (maximum 512 characters)"] mut reason: String,
 ) -> Result<(), Error> {
     let user_id = i64::try_from(member.user.id.get())?;
     let moderator_id = i64::try_from(ctx.author().id.get())?;
-    
+
     // Truncate the reason to Discord's limit.
     reason.truncate(512);
 
-    if let Err(err) = member
-        .kick_with_reason(&ctx.http(), &reason)
-        .await
-    {
+    if let Err(err) = member.kick_with_reason(&ctx.http(), &reason).await {
         eprintln!("Failed to kick member: {err:?}");
         ctx.say(
             "Failed to kick this member. They may have a higher or equal \
-             role than the bot, or the bot may be missing the Kick Members permission."
+             role than the bot, or the bot may be missing the Kick Members permission.",
         )
         .await?;
         return Ok(());

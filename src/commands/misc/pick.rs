@@ -1,11 +1,10 @@
 use crate::{Context, Error};
-use rand::seq::{IndexedRandom};
+use rand::seq::IndexedRandom;
 
 #[poise::command(slash_command)]
 pub async fn pick(
     ctx: Context<'_>,
-    #[description = "Comma-separated list of options you want to pick from"]
-    pick_list: String,
+    #[description = "Comma-separated list of options you want to pick from"] pick_list: String,
 ) -> Result<(), Error> {
     let options: Vec<&str> = pick_list
         .split(',')
@@ -18,7 +17,7 @@ pub async fn pick(
         return Ok(());
     }
 
-   let choice = options
+    let choice = options
         .choose(&mut rand::rng())
         .expect("options is not empty");
 

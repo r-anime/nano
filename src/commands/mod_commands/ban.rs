@@ -2,8 +2,7 @@ use chrono::{Duration as ChronoDuration, Utc};
 use poise::serenity_prelude as serenity;
 
 use crate::{
-    Context,
-    Error,
+    Context, Error,
     db::database,
     types::{ModerationAction, QueuedJobType},
 };
@@ -15,12 +14,11 @@ use crate::{
 )]
 pub async fn ban(
     ctx: Context<'_>,
-    #[description = "The Discord user ID to ban"]
-    user_id: serenity::UserId,
-    #[description = "Ban reason (maximum 512 characters)"]
-    mut reason: String,
-    #[description = "Duration, e.g. 30m, 2h, or 7d. Omit for a permanent ban."]
-    length: Option<String>,
+    #[description = "The Discord user ID to ban"] user_id: serenity::UserId,
+    #[description = "Ban reason (maximum 512 characters)"] mut reason: String,
+    #[description = "Duration, e.g. 30m, 2h, or 7d. Omit for a permanent ban."] length: Option<
+        String,
+    >,
 ) -> Result<(), Error> {
     let guild_id = ctx.data().guild_id;
 
@@ -39,7 +37,7 @@ pub async fn ban(
             _ => {
                 ctx.say(
                     "Invalid duration! Try `30m`, `2h`, or `7d`. \
-                     The duration must be greater than zero."
+                     The duration must be greater than zero.",
                 )
                 .await?;
                 return Ok(());
@@ -104,19 +102,14 @@ pub async fn ban(
 
         ctx.say(
             "Failed to ban this user. Check the ID, bot permissions, \
-             and role hierarchy."
+             and role hierarchy.",
         )
         .await?;
         return Ok(());
     }
 
     // Cancel previous pending automatic unbans.
-    let cancelled = match database::cancel_pending_unbans(
-        &ctx.data().db,
-        user_id_db,
-    )
-    .await
-    {
+    let cancelled = match database::cancel_pending_unbans(&ctx.data().db, user_id_db).await {
         Ok(count) => count,
         Err(err) => {
             eprintln!(
@@ -134,10 +127,7 @@ pub async fn ban(
     };
 
     if cancelled > 0 {
-        println!(
-            "Cancelled {cancelled} old unban job(s) for {}",
-            user_id
-        );
+        println!("Cancelled {cancelled} old unban job(s) for {}", user_id);
     }
 
     // Schedule the new automatic unban, if temporary.
@@ -152,10 +142,7 @@ pub async fn ban(
         )
         .await
         {
-            eprintln!(
-                "Banned {}, but failed to schedule unban: {err}",
-                user_id
-            );
+            eprintln!("Banned {}, but failed to schedule unban: {err}", user_id);
 
             ctx.say(format!(
                 "Banned <@{}>, but failed to schedule the automatic unban. \
@@ -208,7 +195,7 @@ pub async fn ban(
     if dm_failed {
         confirmation.push_str(
             "\nCouldn't DM the user; they may have DMs disabled \
-             or their profile may be inaccessible."
+             or their profile may be inaccessible.",
         );
     }
     ctx.say(confirmation).await?;

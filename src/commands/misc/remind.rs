@@ -2,13 +2,11 @@ use chrono::{Duration as ChronoDuration, Utc};
 
 use crate::{Context, Error, db::database, types::QueuedJobType};
 
-#[poise::command(slash_command,)]
+#[poise::command(slash_command)]
 pub async fn remind(
     ctx: Context<'_>,
-    #[description = "Reminder message (maximum 1900 characters)"]
-    mut remind_message: String,
-    #[description = "When to send the reminder, e.g. 30m, 2h, or 7d"]
-    length: String,
+    #[description = "Reminder message (maximum 1900 characters)"] mut remind_message: String,
+    #[description = "When to send the reminder, e.g. 30m, 2h, or 7d"] length: String,
 ) -> Result<(), Error> {
     let channel_id = i64::try_from(ctx.channel_id().get())?;
     // Truncate the message to stay within Discord's message limit.

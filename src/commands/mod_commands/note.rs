@@ -2,23 +2,14 @@ use chrono::Utc;
 use poise::CreateReply;
 use serenity::model::guild::Member;
 
-use crate::{
-    Context,
-    Error,
-    db::database,
-    types::ModerationAction,
-};
+use crate::{Context, Error, db::database, types::ModerationAction};
 
 #[poise::command(
     slash_command,
     default_member_permissions = "MANAGE_GUILD",
     required_permissions = "MANAGE_GUILD"
 )]
-pub async fn note(
-    ctx: Context<'_>,
-    member: Member,
-    mut note: String,
-) -> Result<(), Error> {
+pub async fn note(ctx: Context<'_>, member: Member, mut note: String) -> Result<(), Error> {
     // Limit the note length.
     note.truncate(1900);
 
@@ -49,14 +40,8 @@ pub async fn note(
         }
     };
 
-    ctx.send(
-        CreateReply::default()
-            .content(format!(
-                "Saved note for <@{}>",
-                member.user.id
-            ))
-    )
-    .await?;
+    ctx.send(CreateReply::default().content(format!("Saved note for <@{}>", member.user.id)))
+        .await?;
 
     Ok(())
 }
