@@ -131,8 +131,8 @@ pub async fn ban(
     }
 
     // Schedule the new automatic unban, if temporary.
-    if let Some(expires_at) = expires_at {
-        if let Err(err) = database::enqueue_job(
+    if let Some(expires_at) = expires_at
+        && let Err(err) = database::enqueue_job(
             &ctx.data().db,
             QueuedJobType::Unban,
             expires_at,
@@ -141,18 +141,17 @@ pub async fn ban(
             serde_json::json!({}),
         )
         .await
-        {
-            eprintln!("Banned {}, but failed to schedule unban: {err}", user_id);
+    {
+        eprintln!("Banned {}, but failed to schedule unban: {err}", user_id);
 
-            ctx.say(format!(
-                "Banned <@{}>, but failed to schedule the automatic unban. \
+        ctx.say(format!(
+            "Banned <@{}>, but failed to schedule the automatic unban. \
                  Please arrange the unban manually.",
-                user_id.get()
-            ))
-            .await?;
+            user_id.get()
+        ))
+        .await?;
 
-            return Ok(());
-        }
+        return Ok(());
     }
 
     // Record the moderation case.
