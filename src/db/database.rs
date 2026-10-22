@@ -23,7 +23,7 @@ pub async fn enqueue_job(
         )
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *
-        "#
+        "#,
     )
     .bind(job_type)
     .bind(execute_at)
@@ -36,11 +36,7 @@ pub async fn enqueue_job(
     Ok(job.id)
 }
 
-
-pub async fn cancel_pending_unbans(
-    db: &PgPool,
-    user_id: i64,
-) -> Result<u64, sqlx::Error> {
+pub async fn cancel_pending_unbans(db: &PgPool, user_id: i64) -> Result<u64, sqlx::Error> {
     let result = sqlx::query(
         r#"
         UPDATE queued_jobs
@@ -59,7 +55,6 @@ pub async fn cancel_pending_unbans(
 
     Ok(result.rows_affected())
 }
-
 
 pub async fn insert_modcase(
     db: &PgPool,

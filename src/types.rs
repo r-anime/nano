@@ -22,7 +22,9 @@ pub enum QueuedJobStatus {
 pub struct QueueRecord {
     pub id: i64,
     pub job_type: QueuedJobType,
+    #[allow(dead_code)]
     pub execute_at: DateTime<Utc>,
+    #[allow(dead_code)]
     pub status: QueuedJobStatus,
     pub channel_id: Option<i64>,
     pub user_id: Option<i64>,
@@ -41,7 +43,9 @@ pub enum ModerationAction {
 
 #[derive(Debug, FromRow)]
 pub struct ModerationCase {
+    #[allow(dead_code)]
     pub id: i64,
+    #[allow(dead_code)]
     pub user_id: i64,
     pub moderator_id: i64,
     pub action: ModerationAction,

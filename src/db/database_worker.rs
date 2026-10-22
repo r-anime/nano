@@ -9,11 +9,7 @@ use crate::{types::QueueRecord, types::QueuedJobType};
 
 type WorkerError = Box<dyn std::error::Error + Send + Sync>;
 
-pub async fn run_worker(
-    db: PgPool,
-    http: Arc<Http>,
-    guild_id: GuildId,
-) {
+pub async fn run_worker(db: PgPool, http: Arc<Http>, guild_id: GuildId) {
     let mut interval = tokio::time::interval(Duration::from_secs(15));
 
     loop {
@@ -25,11 +21,7 @@ pub async fn run_worker(
     }
 }
 
-async fn process_due_jobs(
-    db: &PgPool,
-    http: &Http,
-    guild_id: GuildId,
-) -> Result<(), WorkerError> {
+async fn process_due_jobs(db: &PgPool, http: &Http, guild_id: GuildId) -> Result<(), WorkerError> {
     let jobs = sqlx::query_as::<_, QueueRecord>(
         r#"
         SELECT *
@@ -45,12 +37,8 @@ async fn process_due_jobs(
 
     for job in jobs {
         let result = match job.job_type {
-            QueuedJobType::Unban => {
-                process_unban(http, guild_id, &job).await
-            }
-            QueuedJobType::Remind => {
-                process_reminder(http, &job).await
-            }
+            QueuedJobType::Unban => process_unban(http, guild_id, &job).await,
+            QueuedJobType::Remind => process_reminder(http, &job).await,
         };
 
         match result {
@@ -107,10 +95,7 @@ async fn process_unban(
     Ok(())
 }
 
-async fn process_reminder(
-    http: &Http,
-    job: &QueueRecord,
-) -> Result<(), WorkerError> {
+async fn process_reminder(http: &Http, job: &QueueRecord) -> Result<(), WorkerError> {
     let channel_id = job
         .channel_id
         .and_then(|id| u64::try_from(id).ok())
