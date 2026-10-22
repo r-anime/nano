@@ -24,10 +24,17 @@ async fn main() -> Result<(), Error> {
     let token = env::var("TOKEN")
         .expect("Missing TOKEN env var, see README for more information.");
 
-    let database_url = std::env::var("DATABASE_URL")
-        .expect("Missing DATABASE_URL environment variable");
+    let host = std::env::var("DB_HOST").expect("Missing DB_HOST environment variable");
+    let port = std::env::var("DB_PORT").expect("Missing DB_PORT environment variable");
+    let username = std::env::var("DB_USER").expect("Missing DB_USER environment variable");
+    let password = std::env::var("DB_PASSWORD").expect("Missing DB_PASSWORD environment variable");
+    let database = std::env::var("DB_NAME").expect("Missing DB_NAME environment variable");
 
-    let pool = sqlx::PgPool::connect(&database_url).await?;
+    let pool = sqlx::postgres::PgPoolOptions::new()
+        .connect(&format!(
+            "postgres://{username}:{password}@{host}:{port}/{database}"
+        ))
+        .await?;
 
     let guild_id = env::var("GUILD_ID")
         .expect("Missing GUILD_ID environment variable")

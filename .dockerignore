@@ -1,0 +1,5 @@
+.git
+.env
+target/
+nano/prod/db-data18/
+nano/prod/backup/
