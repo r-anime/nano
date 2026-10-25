@@ -25,11 +25,13 @@ services:
       - ./nano/prod/db-data18:/var/lib/postgresql/18/docker
       - ./nano/prod/backup:/mnt/backup
     environment:
-      POSTGRES_USER: nano
-      POSTGRES_PASSWORD: "choosesomething"
-      POSTGRES_DB: nano
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nano -d nano"]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
       timeout: 5s
       retries: 10
