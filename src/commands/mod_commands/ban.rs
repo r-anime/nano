@@ -20,6 +20,10 @@ pub async fn ban(
         String,
     >,
 ) -> Result<(), Error> {
+    // This is to make sure that the app has some time to process it, otherwise it'll throw an early error to 
+    // the person who exectued it (even if the backend handles everything well)
+    ctx.defer().await?;
+
     let guild_id = ctx.data().guild_id;
 
     let moderator_id = i64::try_from(ctx.author().id.get())?;
@@ -137,7 +141,7 @@ pub async fn ban(
             QueuedJobType::Unban,
             expires_at,
             Some(user_id_db),
-            None,
+            Some(i64::try_from(ctx.channel_id().get())?),
             serde_json::json!({}),
         )
         .await
