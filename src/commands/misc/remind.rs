@@ -53,15 +53,16 @@ pub async fn remind(
         Some(user_id),
         Some(channel_id),
         serde_json::json!({
-            "message": remind_message,
+            "message": remind_message.clone(),
         }),
     )
     .await?;
 
     // Confirm the scheduled reminder.
     ctx.say(format!(
-        "Reminder scheduled for <t:{}:f>",
+        "Reminder scheduled for <t:{}:f>\nReminder message: {}",
         execute_at.timestamp(),
+        remind_message
     ))
     .await?;
 

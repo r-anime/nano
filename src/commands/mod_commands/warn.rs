@@ -1,5 +1,6 @@
 use chrono::Utc;
-use serenity::{builder::CreateMessage, model::guild::Member};
+use poise::serenity_prelude as serenity;
+use serenity::builder::CreateMessage;
 
 use crate::{Context, Error, db::database, types::ModerationAction};
 
@@ -10,17 +11,18 @@ use crate::{Context, Error, db::database, types::ModerationAction};
 )]
 pub async fn warn(
     ctx: Context<'_>,
-    member: Member,
+    user_id: serenity::UserId,
     #[description = "Warn reason, anything above 1950 characters will be truncated in line wtih Discord's message limit."]
     mut reason: String,
 ) -> Result<(), Error> {
-    let user_id = i64::try_from(member.user.id.get())?;
+    let user = ctx.http().get_user(user_id).await?;
+    let user_id_db = i64::try_from(user_id.get())?;
     let moderator_id = i64::try_from(ctx.author().id.get())?;
 
     // Truncate the string so it doesn't go over the char limit
     reason.truncate(1950);
     let dm = CreateMessage::new().content(format!("You have been warned.\nReason: {}", reason));
-    if let Err(err) = member.user.dm(&ctx.http(), dm).await {
+    if let Err(err) = user.dm(&ctx.http(), dm).await {
         eprintln!("Failed to DM user: {err:?}");
         ctx.say("Failed to notify user because of closed DMs")
             .await?;
@@ -29,7 +31,7 @@ pub async fn warn(
     }
     let _case_id = match database::insert_modcase(
         &ctx.data().db,
-        user_id,
+        user_id_db,
         moderator_id,
         ModerationAction::Warn,
         reason.clone(),
@@ -48,11 +50,7 @@ pub async fn warn(
         }
     };
 
-    ctx.say(format!(
-        "Warned <@{}> reason: {}.",
-        member.user.id.get(),
-        reason
-    ))
-    .await?;
+    ctx.say(format!("Warned <@{}> reason: {}.", user_id_db, reason))
+        .await?;
     Ok(())
 }
