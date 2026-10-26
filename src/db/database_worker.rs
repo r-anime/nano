@@ -1,8 +1,8 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use poise::serenity_prelude as serenity;
 use ::serenity::model::id::ChannelId;
+use poise::serenity_prelude as serenity;
 use serenity::{GuildId, Http, UserId};
 use sqlx::PgPool;
 
@@ -96,21 +96,22 @@ async fn process_unban(
     if let Some(channel_id) = job
         .channel_id
         .and_then(|id| u64::try_from(id).ok())
-        .map(ChannelId::new) {
+        .map(ChannelId::new)
+    {
         let message = format!(
             "**User automatically unbanned**\n\
              **User:** <@{}> (`{}`)",
             user_id.get(),
             user_id.get()
         );
-            if let Err(err) = channel_id.say(http, message).await {
-                eprintln!(
-                    "User {} was automatically unbanned, \
+        if let Err(err) = channel_id.say(http, message).await {
+            eprintln!(
+                "User {} was automatically unbanned, \
                     but notification failed: {}",
-                    user_id, err
-                );
-            }
-        } else {
+                user_id, err
+            );
+        }
+    } else {
         eprintln!(
             "User {} was automatically unbanned, \
              but the job has no valid notification channel ID",

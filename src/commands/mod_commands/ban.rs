@@ -20,7 +20,7 @@ pub async fn ban(
         String,
     >,
 ) -> Result<(), Error> {
-    // This is to make sure that the app has some time to process it, otherwise it'll throw an early error to 
+    // This is to make sure that the app has some time to process it, otherwise it'll throw an early error to
     // the person who exectued it (even if the backend handles everything well)
     ctx.defer().await?;
 

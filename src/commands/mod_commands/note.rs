@@ -9,7 +9,11 @@ use crate::{Context, Error, db::database, types::ModerationAction};
     default_member_permissions = "MANAGE_GUILD",
     required_permissions = "MANAGE_GUILD"
 )]
-pub async fn note(ctx: Context<'_>, user_id: serenity::UserId, mut note: String) -> Result<(), Error> {
+pub async fn note(
+    ctx: Context<'_>,
+    user_id: serenity::UserId,
+    mut note: String,
+) -> Result<(), Error> {
     // Limit the note length.
     note.truncate(1900);
 

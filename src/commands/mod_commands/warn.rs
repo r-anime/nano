@@ -1,6 +1,6 @@
 use chrono::Utc;
-use serenity::builder::CreateMessage;
 use poise::serenity_prelude as serenity;
+use serenity::builder::CreateMessage;
 
 use crate::{Context, Error, db::database, types::ModerationAction};
 
@@ -50,11 +50,7 @@ pub async fn warn(
         }
     };
 
-    ctx.say(format!(
-        "Warned <@{}> reason: {}.",
-        user_id_db,
-        reason
-    ))
-    .await?;
+    ctx.say(format!("Warned <@{}> reason: {}.", user_id_db, reason))
+        .await?;
     Ok(())
 }
